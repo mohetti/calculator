@@ -1,0 +1,51 @@
+h1 {
+    text-align: center;
+}
+
+/* the "case" of the calculator */
+.container {
+    margin: auto;
+    width: 400px;
+    height: 500px;
+    background-color: gray;    
+}
+
+/* the screen                                               start */
+.screen {
+    width: 1fr;
+    height: 125px;
+    display: grid;
+    grid-template-rows: 55px 70px;
+}
+
+/* first row of the screen */
+#ans {
+    margin: 10px 10px 0px 10px;
+    background-color: white;
+    border-bottom: 1px solid gray;
+
+}
+
+/* second row of the screen                                 end */
+#result {
+    margin: 0px 10px 10px 10px;
+    background-color: white;
+}
+
+/* div container of the buttons and button-specifications   start */
+.input-field {
+    display: grid;
+    margin-left: 3px;
+    margin-right: 3px;
+    grid-template: repeat(5, 72px) / repeat(4, 1fr);
+    grid-gap: 3px;
+}
+
+#equals {
+    grid-row: 4 / -1;
+    grid-column: 4 / -1;
+}
+
+#zero {
+    grid-column: 1 / 3;
+}
