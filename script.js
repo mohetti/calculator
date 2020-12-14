@@ -6,28 +6,54 @@ let ansWindow = document.getElementById("ans");
 let resultWindow = document.getElementById("result");
 let separator = "#";
 let divideZero = false;
-// let indexSep = ans.indexOf("#");
+let warning = document.getElementById("warning");
+let warningVal = false;
+let buttons = document.querySelectorAll("button");
+let max = 0
+
 
 // numberFunction
 let numberFunction = function numberFunction(args) {
     if (divideZero === true) {
         return resultWindow.innerText = args,
                 ans = args,
+                max = 1,
                 divideZero = false,
                 result = "";
     }
     if (result === "") {
         return resultWindow.innerText += args, 
-                ans += args;
+                ans += args,
+                max += 1;
     } else if (result !== "" && operator === "") {
         return resultWindow.innerText = args,
                 ans = args,
-                result = "";
+                max = 1,
+                result = "",
+                ansWindow.innerText = "";
     } else if (result !== "" && ans.charAt(ans.length-1) === "#") {
         return result = "",
                 ans += args,
+                max += 1,
                 resultWindow.innerText += args;
-    }
+    } else if (result !== "" && operator === "-") {
+        return ans += args,
+                max += 1,
+                resultWindow.innerText += args,
+                result = "";
+    } else if (result !== "" && operator !== "") {
+        if (ans.charAt(ans.length-1) === "-") {
+            return ans += args,
+                    max += 1,
+                    resultWindow.innerText += args,
+                    result = "";
+        } else {
+            return ans += "#" + args,
+                    max += 2,
+                resultWindow.innerText += args,
+                result = "";
+    } 
+    };
 };
 // operatorFunction
 let operatorFunction = function operatorFunction(args) {
@@ -37,28 +63,44 @@ let operatorFunction = function operatorFunction(args) {
     if (args === "+" || args === "*" || args === "/") {
         if (resultWindow.innerText === "") {
             return;
-        } else if (ans.indexOf("#") !== -1 || ans.charAt(ans.length-1) === "." ||
-                    ans.charAt(ans.length-1) === "-") {
+        } else if (ans.charAt(ans.length-1) === "#" || ans.charAt(ans.length-1) === "." ||
+                ans.charAt(ans.length-1) === "-") {
             return;
         } else if (ans.indexOf("#") === -1) {
             return operator = args,
-                    resultWindow.innerText += args,
-                    ans += separator;
-        }
+                resultWindow.innerText += args,
+                ans += separator,
+                max += 1;
+        } else if (ans.indexOf("#") !== -1) {
+            return equalFunction(),
+                operator = args,
+                resultWindow.innerText += args,
+                ans += separator,
+                max += 1;
+        }        
     }
     if (args === "-") {
         if (resultWindow.innerText === "") {
             return resultWindow.innerText = args,
-                    ans = args;
+                ans = args,
+                max = 1;
         } else if (ans.charAt(ans.length-1) !== "-" && ans.indexOf("#") === -1) {
             return operator = args,
-                ans += separator,
-                resultWindow.innerText += args;
+            ans += separator,
+            max += 1,
+            resultWindow.innerText += args;
         } else if (ans.charAt(ans.length-1) === "#") {
             return ans += args,
-                    resultWindow.innerText += args;
-        } else if (ans.indexOf("#") !== -1 || ans.charAt(ans.length-1) === ".") {
+                max += 1,
+                resultWindow.innerText += args;
+        } else if (ans.charAt(ans.length-1) === "." || ans.charAt(ans.length-1) === "-") {
             return;
+        } else if (ans.indexOf("#") !== -1) {
+            return equalFunction(),
+                operator = args,
+                resultWindow.innerText += args,
+                ans += separator,
+                ans += 1;
         }
     }
 };
@@ -78,7 +120,8 @@ let calculation = function calculation(input) {
             divideZero = true;
             return 42;
         } else {
-        return firstValue / secValue;
+            let n = firstValue / secValue;
+        return +n.toFixed(7);
     }
     };
 };
@@ -88,23 +131,28 @@ let equalFunction = function equalFunction() {
     if (operator === "" || ans.charAt(ans.length-1) === "#") {
         return;
     } else {
-        result = calculation(operator)
+        result = calculation(operator);
+        warning.innerText = "";
         return ansWindow.innerText = resultWindow.innerText + " =", 
         resultWindow.innerText = result, 
         ans = String(result),
-        operator = "";
+        operator = "",
+        max = ans.length;
 
     }
 };
 
 // cleaFunction
 let clearFunction = function clearFunction() {
-    return resultWindow.innerText = "", ansWindow.innerText = "", operator = "", result = "", ans = "";
+    return resultWindow.innerText = "", ansWindow.innerText = "", operator = "", result = "", ans = "",
+            max = 0;
 
 };
 
 // deleteFunction
 let deleteFunction = function deleteFunction() {
+    max = max - 1;
+    warning.innerText = "";
     if (ans.charAt(ans.length-1) !== "#") {
         return ans = ans.slice(0, -1),
         resultWindow.innerText = resultWindow.innerText.slice(0, -1);
@@ -118,6 +166,7 @@ let deleteFunction = function deleteFunction() {
 // decimalFunction
 let decimalFunction = function decimalFunction(dec) {
     let secValueDecCheck = ans.substr(ans.indexOf("#")+1);
+
     if (ans === "" || ans.charAt(ans.length-1) === "#" || ans.charAt(ans.length-1) === "-") {
         return;
     } else if (ans !== "" && ans.indexOf("#") === -1 && ans.indexOf(".") === -1) {
@@ -129,10 +178,29 @@ let decimalFunction = function decimalFunction(dec) {
     }
 };
 
+
 // rules for the different button-click eventlisteners based on classes
 let inputUser = function inputUser(e) {
     let inputClass = e.target.className;
     let input = e.target.innerText;
+    if (max === 10) {
+        warning.innerText = "You have reached the character limit."
+        if (inputClass === "del") {
+            deleteFunction();
+        } else if (inputClass === "equals") {
+            equalFunction();
+        } else if (inputClass === "clear") {
+            warning.innerText = "";
+            clearFunction();
+        } else if (inputClass === "operator" && max === 10) {
+            equalFunction();
+            resultWindow.innerText += input;
+            operator = input;
+            ans += "#";
+        }
+        return;
+    } else if (max <= 10) {
+
     switch (inputClass) {
         case ("number"):
             numberFunction(input);
@@ -153,9 +221,9 @@ let inputUser = function inputUser(e) {
             decimalFunction(input);
             break;
     }
+}
 };
 
 // Eventlistener for buttons
-let buttons = document.querySelectorAll("button");
 buttons.forEach(onClick => onClick.addEventListener("click", inputUser));
 
