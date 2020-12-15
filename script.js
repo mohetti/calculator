@@ -93,7 +93,7 @@ let operatorFunction = function operatorFunction(args) {
             return ans += args,
                 max += 1,
                 resultWindow.innerText += args;
-        } else if (ans.charAt(ans.length-1) === "." || ans.charAt(ans.length-1) === "-") {
+        } else if (ans.charAt(ans.length-1) === "." || resultWindow.innerText.charAt(resultWindow.innerText.length-1) === "-") {
             return;
         } else if (ans.indexOf("#") !== -1) {
             return equalFunction(),
@@ -138,7 +138,6 @@ let equalFunction = function equalFunction() {
         ans = String(result),
         operator = "",
         max = ans.length;
-
     }
 };
 
@@ -183,7 +182,7 @@ let decimalFunction = function decimalFunction(dec) {
 let inputUser = function inputUser(e) {
     let inputClass = e.target.className;
     let input = e.target.innerText;
-    if (max === 10) {
+    if (max === 20) {
         warning.innerText = "You have reached the character limit."
         if (inputClass === "del") {
             deleteFunction();
@@ -192,14 +191,14 @@ let inputUser = function inputUser(e) {
         } else if (inputClass === "clear") {
             warning.innerText = "";
             clearFunction();
-        } else if (inputClass === "operator" && max === 10) {
+        } else if (inputClass === "operator" && max === 20) {
             equalFunction();
             resultWindow.innerText += input;
             operator = input;
             ans += "#";
         }
         return;
-    } else if (max <= 10) {
+    } else if (max <= 20) {
 
     switch (inputClass) {
         case ("number"):
@@ -226,4 +225,42 @@ let inputUser = function inputUser(e) {
 
 // Eventlistener for buttons
 buttons.forEach(onClick => onClick.addEventListener("click", inputUser));
+
+
+document.addEventListener("keydown", function(e) {
+
+if (max === 20) {
+    warning.innerText = "You have reached the character limit."
+    if (e.key === "Backspace") {
+        deleteFunction();
+    } else if (e.key === "Enter") {
+        equalFunction();
+    } else if (e.key === "Escape") {
+        warning.innerText = "";
+        clearFunction();
+    } else if (e.key === "+" || e.key === "-" || e.key === "/" || e.key === "*" && max === 20) {
+        equalFunction();
+        resultWindow.innerText += e.key;
+        operator = e.key;
+        ans += "#";
+    }
+    return;
+}
+
+else if(max <= 20) {
+   if (isFinite(e.key) === true) {
+        numberFunction(e.key);
+   } else if (e.key === "+" || e.key === "-" || e.key === "/" || e.key === "*") {
+        operatorFunction(e.key);
+   } else if (e.key === "Enter") {
+       equalFunction();
+   } else if (e.key === "Backspace") {
+       deleteFunction();
+   } else if (e.key === "Escape") {
+       clearFunction();
+   } else if (e.key === ".") {
+       decimalFunction(e.key);
+   }
+}
+});
 
